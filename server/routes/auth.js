@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key_12345';
 
 // Import User model
 let User;
