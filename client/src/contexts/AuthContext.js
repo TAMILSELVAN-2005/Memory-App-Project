@@ -2,6 +2,9 @@ import React, { createContext, useContext, useReducer, useEffect, useCallback } 
 
 const AuthContext = createContext();
 
+// Use the same base URL as the rest of the client API so dev/prod behave the same
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const initialState = {
     user: null,
     token: localStorage.getItem('token'),
@@ -54,8 +57,13 @@ export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
 
     const loadUser = useCallback(async () => {
+        if (!state.token) {
+            dispatch({ type: 'AUTH_ERROR' });
+            return;
+        }
+
         try {
-            const response = await fetch('http://localhost:5000/auth/me', {
+            const response = await fetch(`${API_BASE}/auth/me`, {
                 headers: {
                     'Authorization': `Bearer ${state.token}`
                 }
@@ -70,7 +78,7 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             dispatch({ type: 'AUTH_ERROR' });
         }
-    }, [state.token, dispatch]);
+    }, [state.token]);
 
     // Load user on mount
     useEffect(() => {
@@ -83,7 +91,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:5000/auth/login', {
+            const response = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -106,7 +114,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password) => {
         try {
-            const response = await fetch('http://localhost:5000/auth/register', {
+            const response = await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
