@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Grow, Paper, Typography } from '@mui/material';
+import { Container, Grid, Grow, Paper, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useAuth } from '../../contexts/AuthContext';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -15,6 +15,8 @@ const Home = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const isCreatePage = location.pathname === '/create';
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   
   // Check if we're editing a post from URL parameter
   const editPostId = searchParams.get('edit');
@@ -57,12 +59,27 @@ const Home = () => {
       <Grow in>
         <Container>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={8}>
-              <Posts setCurrentId={setCurrentId} />
-            </Grid>
-            <Grid item xs={12} md={4}>
-              <Form currentId={currentId} setCurrentId={setCurrentId} />
-            </Grid>
+            {isSmallScreen ? (
+              <>
+                {/* On small screens show the form directly under the header */}
+                <Grid item xs={12}>
+                  <Form currentId={currentId} setCurrentId={setCurrentId} />
+                </Grid>
+                <Grid item xs={12}>
+                  <Posts setCurrentId={setCurrentId} />
+                </Grid>
+              </>
+            ) : (
+              <>
+                {/* On larger screens keep the existing side‑by‑side layout */}
+                <Grid item xs={12} md={8}>
+                  <Posts setCurrentId={setCurrentId} />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Form currentId={currentId} setCurrentId={setCurrentId} />
+                </Grid>
+              </>
+            )}
           </Grid>
         </Container>
       </Grow>
