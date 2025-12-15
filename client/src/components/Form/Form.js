@@ -115,8 +115,8 @@ const Form = ({ currentId, setCurrentId }) => {
       padding: '20px', 
       borderRadius: '15px',
       height: 'fit-content',
-      position: 'sticky',
-      top: '20px',
+      position: { xs: 'static', md: 'sticky' },
+      top: { md: '20px' },
       boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
     }}>
       <Typography variant="h6" sx={{ marginBottom: '20px', textAlign: 'center', fontWeight: 'bold' }}>
@@ -197,7 +197,7 @@ const Form = ({ currentId, setCurrentId }) => {
           {currentId ? 'Update' : 'Submit'}
         </Button>
         
-        {currentId && (
+        {currentId !== 0 && (
           <Button 
             variant="outlined" 
             color="error" 
