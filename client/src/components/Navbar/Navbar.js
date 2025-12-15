@@ -10,7 +10,9 @@ import {
     Menu,
     MenuItem,
     TextField,
-    InputAdornment
+    InputAdornment,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import { 
     Search as SearchIcon,
@@ -34,6 +36,9 @@ const Navbar = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [searchTimeout, setSearchTimeout] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
+
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -104,23 +109,151 @@ const Navbar = () => {
 
     return (
         <AppBar position="sticky" sx={{ backgroundColor: '#fff', color: '#333' }}>
-            <Toolbar>
-                <Typography 
-                    variant="h6" 
-                    component="div" 
-                    sx={{ 
-                        flexGrow: 1, 
-                        cursor: 'pointer',
-                        fontWeight: 'bold',
-                        color: '#1976d2'
+            <Toolbar
+                sx={{
+                    flexWrap: isSmallScreen ? 'wrap' : 'nowrap',
+                    alignItems: isSmallScreen ? 'flex-start' : 'center',
+                    gap: isSmallScreen ? 1 : 0,
+                }}
+            >
+                {/* Left section: logo + actions */}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        width: isSmallScreen ? '100%' : 'auto',
+                        justifyContent: isSmallScreen ? 'space-between' : 'flex-start',
+                        flexShrink: 0,
                     }}
-                    onClick={() => navigate('/')}
                 >
-                    Memories
-                </Typography>
+                    <Typography 
+                        variant="h6" 
+                        component="div" 
+                        sx={{ 
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            color: '#1976d2',
+                        }}
+                        onClick={() => navigate('/')}
+                    >
+                        Memories
+                    </Typography>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {/* Create Post Button */}
+                        {isAuthenticated && (
+                            <Button
+                                variant="contained"
+                                startIcon={<AddIcon />}
+                                onClick={handleCreatePost}
+                                sx={{
+                                    borderRadius: 20,
+                                    ml: 2,
+                                    mr: isSmallScreen ? 0 : 2,
+                                    backgroundColor: '#1976d2',
+                                    whiteSpace: 'nowrap',
+                                    minWidth: isSmallScreen ? 'auto' : '100px',
+                                    px: isSmallScreen ? 1 : 2,
+                                    '&:hover': {
+                                        backgroundColor: '#1565c0',
+                                    },
+                                }}
+                            >
+                                {isSmallScreen ? 'New' : 'Create'}
+                            </Button>
+                        )}
+
+                        {/* Auth Buttons */}
+                        {!isAuthenticated ? (
+                            <Box sx={{ ml: 1 }}>
+                                <Button 
+                                    color="inherit" 
+                                    onClick={() => navigate('/login')}
+                                    sx={{ mr: isSmallScreen ? 0.5 : 1 }}
+                                >
+                                    Login
+                                </Button>
+                                <Button 
+                                    variant="outlined" 
+                                    onClick={() => navigate('/register')}
+                                    sx={{ 
+                                        borderRadius: 20,
+                                        borderColor: '#1976d2',
+                                        color: '#1976d2',
+                                        '&:hover': {
+                                            borderColor: '#1565c0',
+                                            backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                                        },
+                                    }}
+                                >
+                                    Register
+                                </Button>
+                            </Box>
+                        ) : (
+                            <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                                <IconButton
+                                    size="large"
+                                    aria-label="account of current user"
+                                    aria-controls="menu-appbar"
+                                    aria-haspopup="true"
+                                    onClick={handleMenu}
+                                    color="inherit"
+                                >
+                                    <Avatar 
+                                        sx={{ 
+                                            width: 32, 
+                                            height: 32,
+                                            backgroundColor: '#1976d2'
+                                        }}
+                                    >
+                                        {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                                    </Avatar>
+                                </IconButton>
+                                <Menu
+                                    id="menu-appbar"
+                                    anchorEl={anchorEl}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'right',
+                                    }}
+                                    keepMounted
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
+                                    }}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleClose}
+                                >
+                                    <MenuItem onClick={handleProfile}>
+                                        <Person sx={{ mr: 1 }} />
+                                        Profile
+                                    </MenuItem>
+                                    {user?.role === 'admin' && (
+                                        <MenuItem onClick={() => { navigate('/admin'); handleClose(); }}>
+                                            <Person sx={{ mr: 1 }} />
+                                            Admin Dashboard
+                                        </MenuItem>
+                                    )}
+                                    <MenuItem onClick={handleLogout}>
+                                        <ExitToApp sx={{ mr: 1 }} />
+                                        Logout
+                                    </MenuItem>
+                                </Menu>
+                            </Box>
+                        )}
+                    </Box>
+                </Box>
 
                 {/* Search Bar */}
-                <Box sx={{ flexGrow: 1, maxWidth: 400, mx: 2 }}>
+                <Box
+                    sx={{
+                        flexGrow: isSmallScreen ? 0 : 1,
+                        maxWidth: isSmallScreen ? '100%' : 400,
+                        mx: isSmallScreen ? 0 : 2,
+                        mt: isSmallScreen ? 1 : 0,
+                        width: isSmallScreen ? '100%' : 'auto',
+                    }}
+                >
                     <TextField
                         fullWidth
                         size="small"
@@ -216,104 +349,6 @@ const Navbar = () => {
                         </Typography>
                     )}
                 </Box>
-
-                {/* Create Post Button */}
-                {isAuthenticated && (
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={handleCreatePost}
-                        sx={{
-                            borderRadius: 20,
-                            mr: 2,
-                            backgroundColor: '#1976d2',
-                            '&:hover': {
-                                backgroundColor: '#1565c0',
-                            },
-                        }}
-                    >
-                        Create
-                    </Button>
-                )}
-
-                {/* Auth Buttons */}
-                {!isAuthenticated ? (
-                    <Box>
-                        <Button 
-                            color="inherit" 
-                            onClick={() => navigate('/login')}
-                            sx={{ mr: 1 }}
-                        >
-                            Login
-                        </Button>
-                        <Button 
-                            variant="outlined" 
-                            onClick={() => navigate('/register')}
-                            sx={{ 
-                                borderRadius: 20,
-                                borderColor: '#1976d2',
-                                color: '#1976d2',
-                                '&:hover': {
-                                    borderColor: '#1565c0',
-                                    backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                                },
-                            }}
-                        >
-                            Register
-                        </Button>
-                    </Box>
-                ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleMenu}
-                            color="inherit"
-                        >
-                            <Avatar 
-                                sx={{ 
-                                    width: 32, 
-                                    height: 32,
-                                    backgroundColor: '#1976d2'
-                                }}
-                            >
-                                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-                            </Avatar>
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'right',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <MenuItem onClick={handleProfile}>
-                                <Person sx={{ mr: 1 }} />
-                                Profile
-                            </MenuItem>
-                            {user?.role === 'admin' && (
-                                <MenuItem onClick={() => { navigate('/admin'); handleClose(); }}>
-                                    <Person sx={{ mr: 1 }} />
-                                    Admin Dashboard
-                                </MenuItem>
-                            )}
-                            <MenuItem onClick={handleLogout}>
-                                <ExitToApp sx={{ mr: 1 }} />
-                                Logout
-                            </MenuItem>
-                        </Menu>
-                    </Box>
-                )}
             </Toolbar>
         </AppBar>
     );
